@@ -1,5 +1,6 @@
 import asyncio
 import pygame, sys, time
+import webbrowser
 from mytyping import *
 
 pygame.init()    # Pygameを初期化
@@ -155,7 +156,7 @@ class TitleWindow:
         self.frame.blit(title, (0,-11))
         self.frame.blit(title, (1,-10))
         self.frame.blit(title, (1,-11))
-        self.start = self.font2.render('--PLESS SPACE TO START--', True, (0,0,0))
+        self.start = self.font2.render('--PRESS SPACE TO START--', True, (0,0,0))
         self.background = pygame.image.load('background.png')
         self.draw()
     def draw(self):
@@ -170,30 +171,35 @@ class ResultWindow:
         self.frame.fill((0, 0, 0, 207))
         pygame.draw.rect(self.frame, (255,255,255), (0,0,500,400), 3)
         font_restart = pygame.font.Font(None, 40)
-        restart = font_restart.render('--PLESS SPACE TO RESTART--', True, (255,255,255))
+        restart = font_restart.render('--PRESS SPACE TO RESTART--', True, (255,255,255))
         self.frame.blit(restart, (40,350))
         self.font_rank = pygame.font.Font(font_path, 80)
         self.font = pygame.font.Font(font_path, 20)
+    def update(self):
+        self.wps = game_time.wpm / 60
+        self.wpm = game_time.wpm
+        self.miss = game_time.miss_count
+        self.ws = self.wps * 2
+        self.mws = game_time.mwps * 2
+        self.accuracy = (self.wpm / max(1, (self.wpm + self.miss)))*100
+        self.score = (self.ws + self.mws) * self.wpm * (self.accuracy / 100)**2
+        self.sentences = game_time.sentences
+        self.rank = rank_check(self.score)
     def draw(self):
-        wps = game_time.wpm / 60
-        wpm = game_time.wpm
-        miss = game_time.miss_count
-        ws = wps * 2
-        mws = game_time.mwps * 2
-        accuracy = (wpm / max(1, (wpm + miss)))*100
-        score = (ws + mws) * wpm * (accuracy / 100)**2
         screen.fill((235, 235, 245))
-        rank = self.font_rank.render(rank_check(score), True, (255, 255, 255))
-        text_score = self.font.render(f'スコア　　　：{score:.1f}', True, (255, 255, 255))
-        text_ws = self.font.render(f'風速　　　　：{ws:.1f}',True, (255, 255, 255))
-        text_mws = self.font.render(f'最大瞬間風速：{mws:.1f}',True, (255, 255, 255))
-        sentences = self.font.render(f'飛ばした人数：{game_time.sentences}',True, (255, 255, 255))
-        text_wpm = self.font.render(f'打鍵数　　　：{wpm}', True, (255, 255, 255))
-        text_wps = self.font.render(f'打鍵／秒　　：{wps:.1f}',True, (255, 255, 255))
-        text_miss = self.font.render(f'ミスタイプ数：{miss}', True, (255, 255, 255))
-        text_accuracy = self.font.render(f'正確率　　　：{accuracy:.2f}％', True, (255, 255, 255))
+        share = self.font.render('xを押してXでポストする', True, (255, 255, 255))
+        rank = self.font_rank.render(self.rank, True, (255, 255, 255))
+        text_score = self.font.render(f'スコア　　　：{self.score:.1f}', True, (255, 255, 255))
+        text_ws = self.font.render(f'風速　　　　：{self.ws:.1f}',True, (255, 255, 255))
+        text_mws = self.font.render(f'最大瞬間風速：{self.mws:.1f}',True, (255, 255, 255))
+        sentences = self.font.render(f'飛ばした人数：{self.sentences}',True, (255, 255, 255))
+        text_wpm = self.font.render(f'打鍵数　　　：{self.wpm}', True, (255, 255, 255))
+        text_wps = self.font.render(f'打鍵／秒　　：{self.wps:.1f}',True, (255, 255, 255))
+        text_miss = self.font.render(f'ミスタイプ数：{self.miss}', True, (255, 255, 255))
+        text_accuracy = self.font.render(f'正確率　　　：{self.accuracy:.2f}％', True, (255, 255, 255))
         screen.blit(self.background, (10, 10))
         screen.blit(self.frame, (50,50))
+        screen.blit(share, (300, 60))
         screen.blit(rank, (100,100))
         screen.blit(text_score, (80, 230))
         screen.blit(text_ws, (80,265))
@@ -238,6 +244,7 @@ async def main():
             gw.draw()
             spin.draw()
         elif gw.result_mode == True:
+            rw.update()
             rw.draw()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -277,6 +284,9 @@ async def main():
                         game_time = Time()
                         gw.x = 100
                         process.set_new_sentence()
+                    elif event.key == pygame.K_x:
+                        url = f'https://twitter.com/intent/tweet?text=%E5%BC%B7%E9%A2%A8%E3%82%BF%E3%82%A4%E3%83%94%E3%83%B3%E3%82%B0%0A{rw.rank}%0A%E3%82%B9%E3%82%B3%E3%82%A2%E3%81%AF{rw.score:.1f}%E3%81%A7%E3%81%97%E3%81%9F%EF%BC%81%0A%0A%E3%81%93%E3%81%A1%E3%82%89%E3%81%8B%E3%82%89%E9%81%8A%E3%81%B9%E3%81%BE%E3%81%99%0Ahttps%3A%2F%2Fprosamo.github.io%2Fwind_typing%2F'
+                        webbrowser.open(url)
         pygame.display.update()
         clock.tick(50)
         await asyncio.sleep(0)
