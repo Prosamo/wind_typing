@@ -2,6 +2,7 @@ import asyncio
 import pygame, sys, time
 import webbrowser
 from mytyping import *
+import urllib.parse
 
 pygame.init()    # Pygameを初期化
 screen = pygame.display.set_mode((600, 500))    # 画面を作成
@@ -285,7 +286,9 @@ async def main():
                         gw.x = 100
                         process.set_new_sentence()
                     elif event.key == pygame.K_x:
-                        url = f'https://twitter.com/intent/tweet?text=%E5%BC%B7%E9%A2%A8%E3%82%BF%E3%82%A4%E3%83%94%E3%83%B3%E3%82%B0%0A{rw.rank}%0A%E3%82%B9%E3%82%B3%E3%82%A2%E3%81%AF{rw.score:.1f}%E3%81%A7%E3%81%97%E3%81%9F%EF%BC%81%0A%0A%E3%81%93%E3%81%A1%E3%82%89%E3%81%8B%E3%82%89%E9%81%8A%E3%81%B9%E3%81%BE%E3%81%99%0Ahttps%3A%2F%2Fprosamo.github.io%2Fwind_typing%2F'
+                        text = f'強風タイピング\n強風級\nスコアは{rw.score:.1f}でした！\n\nこちらから遊べます\nhttps://prosamo.github.io/wind-typing/'
+                        url_text = urllib.parse.quote(text)
+                        url = f'https://x.com/intent/post?text={url_text}'
                         webbrowser.open(url)
         pygame.display.update()
         clock.tick(50)
