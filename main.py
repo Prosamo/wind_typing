@@ -286,7 +286,7 @@ async def main():
                         gw.x = 100
                         process.set_new_sentence()
                     elif event.key == pygame.K_x:
-                        text = f'強風タイピング\n{rw.rank}\nスコアは{rw.score:.1f}でした！\n\nこちらから遊べます\nhttps://prosamo.github.io/wind_typing/'
+                        text = f'強風タイピング\n{rw.rank}\n風速：{rw.ws:.1f}\n最大瞬間風速：{rw.mws:.1f}\nスコアは{rw.score:.1f}でした！\n\nこちらから遊べます\nhttps://prosamo.github.io/wind_typing/'
                         url_text = urllib.parse.quote(text)
                         url = f'https://x.com/intent/post?text={url_text}'
                         webbrowser.open(url)
