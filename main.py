@@ -1,8 +1,10 @@
 import asyncio
-import pygame, sys, time
+import pygame, sys, time, random
 import webbrowser
 from mytyping import *
 import urllib.parse
+
+random.seed(time.time())
 
 pygame.init()    # Pygameを初期化
 screen = pygame.display.set_mode((600, 500))    # 画面を作成
@@ -270,10 +272,10 @@ async def main():
                                     spin.spin_mode = True
                                     spin.x = gw.x
                                     spin.y = 300
-                                    process.set_new_sentence()    #新しい文を用意
                                     game_time.sentences += 1
                                     game_time.deadline = 0
                                     gw.x = 100
+                                    process.set_new_sentence()
                         else:
                             vocalize('miss.ogg')
                             game_time.miss_count += 1
